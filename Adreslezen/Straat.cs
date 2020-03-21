@@ -4,21 +4,30 @@ using System.Text;
 
 namespace Adreslezen
 {
-    class Straat
+    class Straatnaam
     {
         public Gemeente Gemeente { get; set; }
         public int ID { get; set; }
-        public string Straatnaam { get; set; }
+        public string straatnaam { get; set; }
 
-        public Straat(int id, string straatnaam, Gemeente gemeente)
+        public Straatnaam(int id, string straatnaam2, Gemeente gemeente)
         {
             ID = id;
-            Straatnaam = straatnaam;
+            straatnaam = straatnaam2;
             Gemeente = gemeente;
         }
         public override string ToString()
         {
-            return $"{ID}: {Gemeente}, {Straatnaam}";
+            return $"{ID}: {Gemeente}, {straatnaam}";
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj is Straatnaam)
+            {
+                Straatnaam other = obj as Straatnaam;
+                return (this.ID == other.ID);
+            }
+            else return false;
         }
     }
 }

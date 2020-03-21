@@ -18,5 +18,14 @@ namespace Adreslezen
         {
             return $"{NIScode}: {GemeenteNaam}";
         }
+        public override bool Equals(object obj)
+        {
+            if (obj is Gemeente)
+            {
+                Gemeente other = obj as Gemeente;
+                return (this.NIScode == other.NIScode);
+            }
+            else return false;
+        }
     }
 }

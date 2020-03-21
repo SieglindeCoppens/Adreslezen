@@ -14,9 +14,9 @@ namespace Adreslezen
         public AdresLocatie Locatie { get; set; }
 
         public int Postcode { get; set; }
-        public Straat Straat { get; set; }
+        public Straatnaam Straat { get; set; }
 
-        public Adres(int id, Straat straat, string appartementnummer, string busnummer, string huisnummer, string huisnummerlabel, Gemeente gemeente, int postcode, double x, double y)
+        public Adres(int id, Straatnaam straat, string appartementnummer, string busnummer, string huisnummer, string huisnummerlabel, Gemeente gemeente, int postcode, double x, double y)
         {
             ID = id;
             Straat = straat;
@@ -33,7 +33,7 @@ namespace Adreslezen
         }
         public override string ToString()
         {
-            return $"{}"
+            return $"";
         }
     }
 }
