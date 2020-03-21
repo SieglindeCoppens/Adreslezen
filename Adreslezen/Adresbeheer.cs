@@ -17,7 +17,7 @@ namespace Adreslezen
         {
             Dictionary<Straatnaam, List<Adres>> straatnamen = new Dictionary<Straatnaam, List<Adres>>();
             Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeentes = new Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>>();
-            using (StreamReader sr = File.OpenText(@"C:\Users\Sieglinde\source\repos\Adreslezen\CrabAdr.gml"))
+            using (StreamReader sr = File.OpenText(@"C:\Users\Sieglinde\OneDrive\Documenten\Programmeren\semester2\programmeren 3\adresbeheer\CrabAdr.gml"))
             {
                 string input = null;
                 char[] splitsers = { '<', '>' };
