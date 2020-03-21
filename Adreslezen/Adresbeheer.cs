@@ -36,20 +36,23 @@ namespace Adreslezen
                 int postcode = 0;
 
 
-                for (int t = 0; t < 9; t++)
+                for (int t = 0; t < 7; t++)
                     sr.ReadLine();
 
                 while ((sr.ReadLine()) != null)
                 {
                     for (int teller = 1; teller <= 22; teller++)
                     {
-                        if (teller == 1 || (teller >= 12 && teller <= 15) || teller >= 18)
+                        input= sr.ReadLine();
+                        if(input == null)
                         {
-                            sr.ReadLine();
+                            break;
+                        }
+                        else if (teller == 1 || (teller >= 12 && teller <= 15) || teller >= 18)
+                        {
                         }
                         else if (teller == 2)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -58,7 +61,6 @@ namespace Adreslezen
                         }
                         else if (teller == 3)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -67,7 +69,6 @@ namespace Adreslezen
                         }
                         else if (teller == 4)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -76,7 +77,6 @@ namespace Adreslezen
                         }
                         else if (teller == 5)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -85,7 +85,6 @@ namespace Adreslezen
                         }
                         else if (teller == 6)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -94,7 +93,6 @@ namespace Adreslezen
                         }
                         else if (teller == 7)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -103,7 +101,6 @@ namespace Adreslezen
                         }
                         else if (teller == 8)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -112,7 +109,6 @@ namespace Adreslezen
                         }
                         else if(teller == 9)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -121,7 +117,6 @@ namespace Adreslezen
                         }
                         else if(teller == 10)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -130,7 +125,6 @@ namespace Adreslezen
                         }
                         else if (teller == 11)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -139,7 +133,6 @@ namespace Adreslezen
                         }
                         else if (teller == 16)
                         {
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -148,7 +141,6 @@ namespace Adreslezen
                         }
                         else if (teller == 17)
                         { 
-                            input = sr.ReadLine();
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -167,7 +159,8 @@ namespace Adreslezen
                     Straatnaam straat = new Straatnaam(straatnaamId, straatnaam, gemeente);
                     if (!gemeentes[gemeente].ContainsKey(straat))
                     {
-                        gemeentes[gemeente].Add(straat, null);
+
+                        gemeentes[gemeente].Add(straat, new List<Adres>());
                     }
 
                     //adres aanmaken
