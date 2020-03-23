@@ -27,5 +27,9 @@ namespace Adreslezen
             }
             else return false;
         }
+        public override int GetHashCode()
+        {
+            return NIScode.GetHashCode() ^ GemeenteNaam.GetHashCode();
+        }
     }
 }

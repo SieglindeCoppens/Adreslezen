@@ -28,12 +28,10 @@ namespace Adreslezen
             Postcode = postcode;
             Locatie = new AdresLocatie(x, y);
 
-
-
         }
         public override string ToString()
         {
-            return $"";
+            return $"{ID}, {Straat.straatnaam}, {Postcode}";
         }
     }
 }
