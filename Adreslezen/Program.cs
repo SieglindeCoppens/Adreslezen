@@ -28,20 +28,29 @@ namespace Adreslezen
             //var gemeentes = ab.LeesAdressen();
             //ab.VulDatabankOp(gemeentes);
 
+            ab.geefAdres(1000322692);
 
-            //foreach(KeyValuePair<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeente in gemeentes)
+            var straten = ab.geefStraten("Gavere");
+            foreach(string straat in straten)
+            {
+                Console.WriteLine(straat);
+            }
+
+            var adressen = ab.geefAdressen(69428);
+
+            //int aantalStraten = 0;
+            //foreach (KeyValuePair<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeente in gemeentes)
             //{
-            //    Console.WriteLine(gemeente.Key);
+            //    aantalStraten += gemeente.Value.Count;
             //}
-            //Console.WriteLine(gemeentes.Count);
+            //Console.WriteLine(aantalStraten);
 
-            Gemeente testgemeente = new Gemeente(44021, "Gent");
-            Straatnaam teststraat = new Straatnaam(69702, "Beukenlaan", testgemeente);
-            Adres testadres = new Adres(2000000034, teststraat,null, null, "15","15",testgemeente,9051, 101301.62, 190958.69);
+            //Gemeente testgemeente = new Gemeente(44021, "Gent");
+            //Straatnaam teststraat = new Straatnaam(69702, "Beukenlaan", testgemeente);
+            //Adres testadres = new Adres(2000000034, teststraat,null, null, "15","15",testgemeente,9051, 101301.62, 190958.69);
+            // ab.voegAdresToe(testadres);
 
-            Console.WriteLine(testadres.Busnummer == null);
 
-            ab.voegAdresToe(testadres);
 
         }
     }

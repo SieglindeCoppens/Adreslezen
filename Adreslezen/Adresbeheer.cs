@@ -12,13 +12,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Transactions;
+using System.Linq;
 
 namespace Adreslezen
 {
     class AdresBeheer
     {
 
-        public Dictionary<Gemeente,Dictionary<Straatnaam, List<Adres>>> LeesAdressen()
+        public Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>> LeesAdressen()
         {
             //Dictionary<Straatnaam, List<Adres>> straatnamen = new Dictionary<Straatnaam, List<Adres>>();
             Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeentes = new Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>>();
@@ -48,8 +49,8 @@ namespace Adreslezen
                 {
                     for (int teller = 1; teller <= 22; teller++)
                     {
-                        input= sr.ReadLine();
-                        if(input == null)
+                        input = sr.ReadLine();
+                        if (input == null)
                         {
                             break;
                         }
@@ -112,7 +113,7 @@ namespace Adreslezen
                                 huisnrLabel = inputs[2];
                             }
                         }
-                        else if(teller == 9)
+                        else if (teller == 9)
                         {
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
@@ -120,7 +121,7 @@ namespace Adreslezen
                                 nis = int.Parse(inputs[2]);
                             }
                         }
-                        else if(teller == 10)
+                        else if (teller == 10)
                         {
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
@@ -145,7 +146,7 @@ namespace Adreslezen
                             }
                         }
                         else if (teller == 17)
-                        { 
+                        {
                             String[] inputs = input.Split(splitsers);
                             if (inputs.Length == 5)
                             {
@@ -162,9 +163,9 @@ namespace Adreslezen
 
                     //kijken of de straat al in de dictionary zit, zo niet: straat maken
                     Straatnaam straat = new Straatnaam(straatnaamId, straatnaam, gemeente);
+
                     if (!gemeentes[gemeente].ContainsKey(straat))
                     {
-
                         gemeentes[gemeente].Add(straat, new List<Adres>());
                     }
 
@@ -182,24 +183,27 @@ namespace Adreslezen
 
         public void VulDatabankOp(Dictionary<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeentes)
         {
+            //DbConnection connection = getConnection();
 
+            foreach (KeyValuePair<Gemeente, Dictionary<Straatnaam, List<Adres>>> gemeente in gemeentes)
+            {
+                voegGemeenteToe(gemeente.Key);
+                foreach (KeyValuePair<Straatnaam, List<Adres>> straat in gemeente.Value)
+                {
+                    voegStraatToe(straat.Key);
 
+                    foreach (Adres adres in straat.Value)
+                    {
+                        voegAdresToe(adres);
+                    }
+                }
 
-
-
-
+            }
         }
 
 
-
-
-
-
-
-
-
         /// DEEL 2 ------------------------------------------------------------------------------------------------///
-       
+
         private DbProviderFactory sqlFactory;
         private string connectionString;
 
@@ -215,6 +219,90 @@ namespace Adreslezen
             return connection;
         }
 
+        public void voegGemeenteToe(Gemeente gemeente)
+        {
+            DbConnection connection = getConnection();
+            string queryGemeente = "INSERT INTO dbo.gemeente(NIScode, gemeentenaam) VALUES(@NIScode,@gemeentenaam)";
+
+            using (DbCommand command = connection.CreateCommand())
+            {
+                connection.Open();
+
+                try
+                {
+
+                    DbParameter parNIScode = sqlFactory.CreateParameter();
+                    parNIScode.ParameterName = "@NIScode";
+                    parNIScode.DbType = DbType.Int32;
+                    command.Parameters.Add(parNIScode);
+                    DbParameter parGemeentenaam = sqlFactory.CreateParameter();
+                    parGemeentenaam.ParameterName = "@gemeentenaam";
+                    parGemeentenaam.DbType = DbType.String;
+                    command.Parameters.Add(parGemeentenaam);
+
+                    command.CommandText = queryGemeente;
+                    command.Parameters["@NIScode"].Value = gemeente.NIScode;
+                    command.Parameters["@gemeentenaam"].Value = gemeente.GemeenteNaam;
+                    command.ExecuteNonQuery();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+        }
+        public void voegStraatToe(Straatnaam straat)
+        {
+            DbConnection connection = getConnection();
+            string queryStraat = "INSERT INTO dbo.straatnaam(Id, straatnaam, NIScode) VALUES(@Id, @straatnaam, @NIScode)";
+
+            using (DbCommand command = connection.CreateCommand())
+            {
+                connection.Open();
+
+                try
+                {
+
+                    DbParameter paId = sqlFactory.CreateParameter();
+                    paId.ParameterName = "@Id";
+                    paId.DbType = DbType.Int32;
+                    command.Parameters.Add(paId);
+                    DbParameter parStraatnaam = sqlFactory.CreateParameter();
+                    parStraatnaam.ParameterName = "@straatnaam";
+                    parStraatnaam.DbType = DbType.String;
+                    command.Parameters.Add(parStraatnaam);
+                    DbParameter parNIScode = sqlFactory.CreateParameter();
+                    parNIScode.ParameterName = "@NIScode";
+                    parNIScode.DbType = DbType.Int32;
+                    command.Parameters.Add(parNIScode);
+
+
+                    command.CommandText = queryStraat;
+                    command.Parameters["@Id"].Value = straat.ID;
+                    command.Parameters["@NIScode"].Value = straat.Gemeente.NIScode;
+                    command.Parameters["@straatnaam"].Value = straat.straatnaam;
+
+
+                    command.ExecuteNonQuery();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+        }
         public void voegAdresToe(Adres adres)
         {
             DbConnection connection = getConnection();
@@ -277,7 +365,7 @@ namespace Adreslezen
                     else
                         command.Parameters["@busnummer"].Value = adres.Busnummer;
 
-                    if (adres.Huisnummerlabel== null)
+                    if (adres.Huisnummerlabel == null)
                         command.Parameters["@huisnummerlabel"].Value = DBNull.Value;
                     else
                         command.Parameters["@huisnummerlabel"].Value = adres.Huisnummerlabel;
@@ -322,5 +410,252 @@ namespace Adreslezen
                 }
             }
         }
+        public Adres geefAdres(int id)
+        {
+            DbConnection connection = getConnection();
+            string query = "SELECT * FROM dbo.adres WHERE Id=@Id";
+            //string queryAS = "SELECT * FROM dbo.gemeente t1"
+            //    + "where t1.NIScode = @NIScode";
+            //string queryAB = "SELECT * FROM dbo.straatnaam t2" + "WHERE t2.Id=@straatnaamID";
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = query;
+                DbParameter paramId = sqlFactory.CreateParameter();
+                paramId.ParameterName = "@Id";
+                paramId.DbType = DbType.Int32;
+                paramId.Value = id;
+                command.Parameters.Add(paramId);
+                connection.Open();
+                try
+                {
+                    DbDataReader reader = command.ExecuteReader();
+                    reader.Read();
+                    int adresId = (int)reader["Id"];
+                    int straatnaamID = (int)reader["straatnaamID"];
+                    string huisnummer = (string)reader["huisnummer"];
+                    string appartementnummer = (string)reader["appartementnummer"];
+                    string busnummer = (string)reader["busnummer"];
+                    string huisnummerlabel = (string)reader["huisnummerlabel"];
+                    int adreslocatieID = (int)reader["adreslocatieID"];
+
+                    reader.Close();
+
+                    Straatnaam straat = GeefStraat(straatnaamID);
+
+                    Adres adres = new Adres(adresId, straat, appartementnummer, busnummer, huisnummer, huisnummerlabel, straat.Gemeente);
+
+                    Console.WriteLine($"Gemeente: {straat.Gemeente.GemeenteNaam} {straat.Gemeente.NIScode} \nStraat: {straat.straatnaam} {straat.ID}\nAdres: {adresId} {huisnummer} {appartementnummer} {busnummer} ");
+
+
+                    return adres;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+        //public AdresLocatie GetAdresLocatie()
+        //{
+
+        //}
+
+        public Straatnaam GeefStraat(int id)
+        {
+            DbConnection connection = getConnection();
+            string query = "SELECT * FROM dbo.straatnaam WHERE id=@id";
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = query;
+                DbParameter paramId = sqlFactory.CreateParameter();
+                paramId.ParameterName = "@Id";
+                paramId.DbType = DbType.Int32;
+                paramId.Value = id;
+                command.Parameters.Add(paramId);
+                connection.Open();
+                try
+                {
+                    DbDataReader reader = command.ExecuteReader();
+                    reader.Read();
+                    int straatID = (int)reader["Id"];
+                    string straatnaam = (string)reader["straatnaam"];
+                    int NIScode = (int)reader["NIScode"];
+                    reader.Close();
+
+                    Gemeente gemeente = GeefGemeente(NIScode);
+                    Straatnaam straat = new Straatnaam(straatID, straatnaam, gemeente);
+
+                    return straat;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+        public Gemeente GeefGemeente(int NIScode)
+        {
+            {
+                DbConnection connection = getConnection();
+                string query = "SELECT * FROM dbo.gemeente WHERE NIScode=@NIScode";
+                using (DbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = query;
+                    DbParameter paramNIScode = sqlFactory.CreateParameter();
+                    paramNIScode.ParameterName = "@NIScode";
+                    paramNIScode.DbType = DbType.Int32;
+                    paramNIScode.Value = NIScode;
+                    command.Parameters.Add(paramNIScode);
+                    connection.Open();
+                    try
+                    {
+                        DbDataReader reader = command.ExecuteReader();
+                        reader.Read();
+
+                        Gemeente gemeente = new Gemeente((int)reader["NIScode"], (string)reader["gemeentenaam"]);
+                        reader.Close();
+                        return gemeente;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                        return null;
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+        }
+
+        public List<string> geefStraten(string gemeentenaam)
+        {
+            DbConnection connection = getConnection();
+
+
+            //Stap  : de NIScode van de gegeven gemeentenaam zoeken
+
+            string query = "SELECT * FROM dbo.gemeente WHERE gemeentenaam=@gemeentenaam";
+            int NIScode = 0;
+            List<String> straten = new List<string>();
+
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = query;
+                DbParameter paramGemeentenaam = sqlFactory.CreateParameter();
+                paramGemeentenaam.ParameterName = "@gemeentenaam";
+                paramGemeentenaam.DbType = DbType.String;
+                paramGemeentenaam.Value = gemeentenaam;
+                command.Parameters.Add(paramGemeentenaam);
+                connection.Open();
+                try
+                {
+                    DbDataReader reader = command.ExecuteReader();
+                    reader.Read();
+                    NIScode = (int)reader["NIScode"];
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+            string querystraten = "SELECT * FROM dbo.straatnaam WHERE NIScode=@NIScode";
+
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = querystraten;
+                DbParameter paramNIScode= sqlFactory.CreateParameter();
+                paramNIScode.ParameterName = "@NIScode";
+                paramNIScode.DbType = DbType.Int32;
+                paramNIScode.Value = NIScode;
+                command.Parameters.Add(paramNIScode);
+                connection.Open();
+                try
+                {
+                    DbDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        straten.Add(reader.GetString(1));
+                    }
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+
+            }
+            straten.Sort();
+            return straten;
+
+        }
+
+        public List<Adres> geefAdressen(int straatID)
+        {
+            DbConnection connection = getConnection();
+
+            string query = "SELECT * FROM dbo.adres WHERE straatnaamID=@Id";
+            List<Adres> adressen = new List<Adres>();
+
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = query;
+                DbParameter paramId = sqlFactory.CreateParameter();
+                paramId.ParameterName = "@Id";
+                paramId.DbType = DbType.Int32;
+                paramId.Value = straatID;
+                command.Parameters.Add(paramId);
+                connection.Open();
+                try
+                {
+                    DbDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int adresID = (int)reader["Id"];
+                        Adres adres = geefAdres(adresID);
+                        adressen.Add(adres);
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+            return adressen;
+        }
+
+
     }
 }
+ 

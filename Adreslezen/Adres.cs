@@ -29,6 +29,18 @@ namespace Adreslezen
             Locatie = new AdresLocatie(x, y);
 
         }
+        public Adres(int id, Straatnaam straat, string appartementnummer, string busnummer, string huisnummer, string huisnummerlabel, Gemeente gemeente)
+        {
+            ID = id;
+            Straat = straat;
+            Appartementnummer = appartementnummer;
+            Busnummer = busnummer;
+            Huisnummer = huisnummer;
+            Huisnummerlabel = huisnummerlabel;
+            //Gemeente = gemeente;
+            Postcode = 0;
+        }
+
         public override string ToString()
         {
             return $"{ID}, {Straat.straatnaam}, {Postcode}";

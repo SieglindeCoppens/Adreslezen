@@ -6,7 +6,7 @@ namespace Adreslezen
 {
     class AdresLocatie
     {
-        private int _id = 0;
+        private static int _id = 1;
         public int ID { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
@@ -15,7 +15,7 @@ namespace Adreslezen
         {
             X = x;
             Y = y;
-            ID = IdGenerator();
+            ID = CreateID();
         }
         public AdresLocatie(int id, double x, double y)
         {
@@ -24,9 +24,9 @@ namespace Adreslezen
             ID = id;
         }
 
-        public int IdGenerator()
+        public int CreateID()
         {
-            return _id += 1;
+            return _id++;
         }
     }
 }
